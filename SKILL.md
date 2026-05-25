@@ -13,6 +13,10 @@ Extracts 11 structured knowledge dimensions from any e-commerce product page URL
 
 When the user provides a product page URL and asks for extraction:
 
+1. Run the extractor script via Bash tool
+2. **Always paste the full output in your text response** (Bash output is not visible to the user)
+3. Add a brief summary below the full output
+
 ```bash
 python3 ~/.claude/skills/ecommerce-product-extractor/extractor.py <URL>
 ```
@@ -29,8 +33,6 @@ python3 ~/.claude/skills/ecommerce-product-extractor/extractor.py <URL>
 | 价格与促销 | 原价、活动价、优惠规则 |
 | 目标用户 | 适合哪类人群 |
 | 使用场景 | 什么情况下使用 |
-| 销售话术 | 可直接用于对话的表述 |
-| 常见问题 | FAQ及解答 |
 | 售后保障 | 退换货、质保政策 |
 
 ## Requirements

@@ -1,0 +1,6 @@
+[2026-05-25T12:20:05.286+08:00] argv {
+  _: [
+    '/var/folders/rz/2fj47f4x45359p3vc_62dym00000gn/T/tmpad3esbdm.yaml'
+  ],
+  '$0': '../../../.nvm/versions/node/v24.15.0/bin/midscene'
+}

@@ -17,8 +17,6 @@
   },
   "目标用户": ["string"],
   "使用场景": ["string"],
-  "销售话术": "string",
-  "常见问题": [{"问": "string", "答": "string"}],
   "售后保障": "string | null"
 }
 ```
