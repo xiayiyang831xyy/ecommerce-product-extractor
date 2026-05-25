@@ -113,7 +113,18 @@ def test_midscene_fallback_returns_list():
 # Task 6: generate_dialogs + print_result tests
 # ---------------------------------------------------------------------------
 
-from extractor import print_result
+from extractor import generate_dialogs, print_result
+
+
+def test_generate_dialogs_returns_string():
+    knowledge = {"物料名": "测试", "核心卖点": ["快", "好"]}
+    with patch("extractor.anthropic.Anthropic") as MockClient:
+        MockClient.return_value.messages.create.return_value = _mock_claude_response(
+            "Q: 好用吗？\nA: 非常好用，快速又高效。"
+        )
+        result = generate_dialogs(knowledge)
+    assert isinstance(result, str)
+    assert "Q:" in result
 
 
 def test_print_result_contains_all_sections(capsys):
@@ -124,7 +135,10 @@ def test_print_result_contains_all_sections(capsys):
         "价格与促销": {"原价": 100, "活动价": 80, "优惠规则": None},
         "目标用户": ["年轻人"], "使用场景": ["居家"], "售后保障": None,
     }
-    print_result(url, knowledge)
+    dialogs = "Q: 好用吗？\nA: 是的。"
+    print_result(url, knowledge, dialogs)
     captured = capsys.readouterr()
     assert "测试商品" in captured.out
     assert "期望学到知识" in captured.out
+    assert "备注" in captured.out
+    assert "Q: 好用吗" in captured.out

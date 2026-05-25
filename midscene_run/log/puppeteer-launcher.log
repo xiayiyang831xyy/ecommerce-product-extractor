@@ -13,3 +13,18 @@
 }
 [2026-05-25T12:20:07.734+08:00] goto https://humanoide.lovable.app/
 [2026-05-25T12:20:12.795+08:00] waitForNetworkIdle 2000
+[2026-05-25T14:28:01.963+08:00] launching browser with viewport, headed false viewport { width: 1280, height: 900, deviceScaleFactor: 0 } args [
+  '--no-sandbox',
+  '--disable-setuid-sandbox',
+  '--disable-features=HttpsFirstBalancedModeAutoEnable',
+  '--disable-features=PasswordLeakDetection',
+  '--disable-save-password-bubble',
+  '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"'
+] preference {
+  headed: false,
+  keepWindow: false,
+  reportFileName: 'tmp_xqknhnx-2026-05-25_14-28-01-1e98edab',
+  cache: undefined
+}
+[2026-05-25T14:28:02.596+08:00] goto https://humanoide.lovable.app/
+[2026-05-25T14:28:10.743+08:00] waitForNetworkIdle 2000

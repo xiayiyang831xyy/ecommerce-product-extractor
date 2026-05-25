@@ -162,10 +162,30 @@ def midscene_fallback(url: str, missing: list[str]) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# Dialog generation
+# ---------------------------------------------------------------------------
+
+def generate_dialogs(knowledge: dict) -> str:
+    """Call Claude API to generate 2-3 Agent Q&A examples from knowledge JSON."""
+    client = anthropic.Anthropic()
+    prompt_template = _load_prompt("DIALOG_PROMPT")
+    prompt = prompt_template.replace(
+        "{knowledge_json}",
+        json.dumps(knowledge, ensure_ascii=False, indent=2),
+    )
+    response = client.messages.create(
+        model="claude-opus-4-7",
+        max_tokens=1024,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return response.content[0].text.strip()
+
+
+# ---------------------------------------------------------------------------
 # Terminal output
 # ---------------------------------------------------------------------------
 
-def print_result(url: str, knowledge: dict) -> None:
+def print_result(url: str, knowledge: dict, dialogs: str) -> None:
     sep = "=" * 40
     print(f"\n{sep}")
     print(f" 物料名：{knowledge.get('物料名', '未知')}")
@@ -173,6 +193,10 @@ def print_result(url: str, knowledge: dict) -> None:
     print(sep)
     print("\n期望学到知识：")
     print(json.dumps(knowledge, ensure_ascii=False, indent=2))
+    print("\n备注（Agent 对话示例）：")
+    for line in dialogs.split("\n"):
+        if line.strip():
+            print(f"  {line}")
     print(sep)
 
 
@@ -181,23 +205,23 @@ def print_result(url: str, knowledge: dict) -> None:
 # ---------------------------------------------------------------------------
 
 def run(url: str) -> None:
-    print(f"[1/3] 正在抓取页面截图: {url}")
+    print(f"[1/4] 正在抓取页面截图: {url}")
     try:
         screenshots = capture_screenshots(url)
     except Exception as e:
         print(f"[错误] Playwright 截图失败: {e}")
-        print("[1/3] 切换至 Midscene 全流程...")
+        print("[1/4] 切换至 Midscene 全流程...")
         screenshots = midscene_fallback(url, list(FALLBACK_TRIGGERS))
         if not screenshots:
             print("[错误] Midscene 也无法获取页面内容，请检查 URL 是否有效。")
             sys.exit(1)
 
-    print("[2/3] 正在调用 Claude API 提取商品知识...")
+    print("[2/4] 正在调用 Claude API 提取商品知识...")
     knowledge = extract_knowledge(screenshots)
 
     missing = get_missing_fields(knowledge)
     if missing:
-        print(f"[3/3] 字段缺失 {missing}，启动 Midscene 兜底...")
+        print(f"[3/4] 字段缺失 {missing}，启动 Midscene 兜底...")
         fallback_shots = midscene_fallback(url, missing)
         if fallback_shots:
             supplement = extract_knowledge(fallback_shots)
@@ -205,9 +229,12 @@ def run(url: str) -> None:
                 if supplement.get(field):
                     knowledge[field] = supplement[field]
     else:
-        print("[3/3] 所有字段完整，跳过 Midscene 兜底")
+        print("[3/4] 所有字段完整，跳过 Midscene 兜底")
 
-    print_result(url, knowledge)
+    print("[4/4] 正在生成 Agent 对话示例...")
+    dialogs = generate_dialogs(knowledge)
+
+    print_result(url, knowledge, dialogs)
 
 
 if __name__ == "__main__":

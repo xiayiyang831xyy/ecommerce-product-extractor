@@ -4,3 +4,9 @@
   ],
   '$0': '../../../.nvm/versions/node/v24.15.0/bin/midscene'
 }
+[2026-05-25T14:28:01.931+08:00] argv {
+  _: [
+    '/var/folders/rz/2fj47f4x45359p3vc_62dym00000gn/T/tmp_xqknhnx.yaml'
+  ],
+  '$0': '../../../.nvm/versions/node/v24.15.0/bin/midscene'
+}
