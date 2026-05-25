@@ -83,7 +83,11 @@ def extract_knowledge(screenshots_b64: list[str]) -> dict:
         raw = raw.split("```")[1]
         if raw.startswith("json"):
             raw = raw[4:]
-    return json.loads(raw.strip())
+    data = json.loads(raw.strip())
+    # Strip any spurious keys not in the defined schema
+    allowed = {"物料名", "品牌介绍", "产品介绍", "产品分类", "核心卖点",
+               "价格与促销", "目标用户", "使用场景", "售后保障"}
+    return {k: v for k, v in data.items() if k in allowed}
 
 
 # ---------------------------------------------------------------------------

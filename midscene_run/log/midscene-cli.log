@@ -10,3 +10,15 @@
   ],
   '$0': '../../../.nvm/versions/node/v24.15.0/bin/midscene'
 }
+[2026-05-25T14:33:30.707+08:00] argv {
+  _: [
+    '/var/folders/rz/2fj47f4x45359p3vc_62dym00000gn/T/tmph620_7ik.yaml'
+  ],
+  '$0': '../../../.nvm/versions/node/v24.15.0/bin/midscene'
+}
+[2026-05-25T14:37:11.383+08:00] argv {
+  _: [
+    '/var/folders/rz/2fj47f4x45359p3vc_62dym00000gn/T/tmpn9xhbl65.yaml'
+  ],
+  '$0': '../../../.nvm/versions/node/v24.15.0/bin/midscene'
+}

@@ -28,3 +28,33 @@
 }
 [2026-05-25T14:28:02.596+08:00] goto https://humanoide.lovable.app/
 [2026-05-25T14:28:10.743+08:00] waitForNetworkIdle 2000
+[2026-05-25T14:33:30.739+08:00] launching browser with viewport, headed false viewport { width: 1280, height: 900, deviceScaleFactor: 0 } args [
+  '--no-sandbox',
+  '--disable-setuid-sandbox',
+  '--disable-features=HttpsFirstBalancedModeAutoEnable',
+  '--disable-features=PasswordLeakDetection',
+  '--disable-save-password-bubble',
+  '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"'
+] preference {
+  headed: false,
+  keepWindow: false,
+  reportFileName: 'tmph620_7ik-2026-05-25_14-33-30-e8416bdf',
+  cache: undefined
+}
+[2026-05-25T14:33:31.375+08:00] goto https://humanoide.lovable.app/
+[2026-05-25T14:33:38.012+08:00] waitForNetworkIdle 2000
+[2026-05-25T14:37:11.415+08:00] launching browser with viewport, headed false viewport { width: 1280, height: 900, deviceScaleFactor: 0 } args [
+  '--no-sandbox',
+  '--disable-setuid-sandbox',
+  '--disable-features=HttpsFirstBalancedModeAutoEnable',
+  '--disable-features=PasswordLeakDetection',
+  '--disable-save-password-bubble',
+  '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"'
+] preference {
+  headed: false,
+  keepWindow: false,
+  reportFileName: 'tmpn9xhbl65-2026-05-25_14-37-11-10459bcb',
+  cache: undefined
+}
+[2026-05-25T14:37:12.016+08:00] goto https://www.solarlifenergy.com.br/
+[2026-05-25T14:37:25.293+08:00] waitForNetworkIdle 2000
