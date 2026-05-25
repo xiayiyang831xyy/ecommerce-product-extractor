@@ -15,7 +15,7 @@ When the user provides a product page URL and asks for extraction:
 
 1. Run the extractor script via Bash tool
 2. **Always paste the full output in your text response** (Bash output is not visible to the user)
-3. Add a brief summary below the full output
+3. Add a 1-2 sentence summary: what is this company/product? Keep it concise, no field breakdowns.
 
 ```bash
 python3 ~/.claude/skills/ecommerce-product-extractor/extractor.py <URL>
