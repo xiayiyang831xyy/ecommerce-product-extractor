@@ -107,18 +107,31 @@ def get_missing_fields(data: dict) -> list[str]:
 # Midscene fallback
 # ---------------------------------------------------------------------------
 
-def _build_midscene_script(url: str, missing: list[str]) -> str:
-    tasks = [f"navigate to {url}"]
-    if "常见问题" in missing:
-        tasks.append("find and expand FAQ or 常见问题 section by clicking on it")
-        tasks.append("scroll down to reveal all FAQ items")
-    if "售后保障" in missing:
-        tasks.append("scroll to the bottom of the page to reveal warranty and return policy")
+def _build_midscene_yaml(url: str, missing: list[str]) -> str:
+    """Build a Midscene YAML script in the new format (web + tasks)."""
+    flow_steps = []
     if "价格与促销" in missing:
-        tasks.append("dismiss any popup or login dialog that may be covering the price")
-        tasks.append("scroll to the price section")
-    tasks.append("wait 2 seconds for content to load")
-    return "\n".join(f"- {t}" for t in tasks)
+        flow_steps.append("      - ai: dismiss any popup or login dialog that may be covering the price")
+        flow_steps.append("      - ai: scroll to the price section")
+    if "常见问题" in missing:
+        flow_steps.append("      - ai: find and expand the FAQ or 常见问题 section by clicking on it")
+        flow_steps.append("      - ai: scroll down to reveal all FAQ items")
+    if "售后保障" in missing:
+        flow_steps.append("      - aiScroll: {direction: down, distance: 3000}")
+        flow_steps.append("      - ai: scroll to the warranty and return policy section")
+    flow_steps.append("      - sleep: 2000")
+
+    steps_str = "\n".join(flow_steps)
+    return f"""web:
+  url: "{url}"
+  viewportWidth: 1280
+  viewportHeight: 900
+
+tasks:
+  - name: expand-missing-sections
+    flow:
+{steps_str}
+"""
 
 
 def midscene_fallback(url: str, missing: list[str]) -> list[str]:
@@ -127,14 +140,14 @@ def midscene_fallback(url: str, missing: list[str]) -> list[str]:
     if not actionable:
         return []
 
-    script = _build_midscene_script(url, actionable)
+    yaml_content = _build_midscene_yaml(url, actionable)
     with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
-        f.write(f"tasks:\n{script}\n")
+        f.write(yaml_content)
         script_path = f.name
 
     try:
         result = subprocess.run(
-            ["midscene", "run", script_path, "--url", url],
+            ["midscene", script_path],
             capture_output=True, text=True, timeout=60,
         )
         if result.returncode != 0:
