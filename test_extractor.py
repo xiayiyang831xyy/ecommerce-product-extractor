@@ -71,3 +71,45 @@ def test_extract_knowledge_handles_null_fields():
         result = extract_knowledge(["fake_base64_screenshot"])
     assert result["品牌介绍"] is None
     assert result["常见问题"] == []
+
+
+# ---------------------------------------------------------------------------
+# Task 5: get_missing_fields + midscene_fallback tests
+# ---------------------------------------------------------------------------
+
+from extractor import get_missing_fields, midscene_fallback
+
+
+def test_get_missing_fields_detects_nulls():
+    data = {
+        "物料名": "X", "品牌介绍": "Y", "产品介绍": "Z",
+        "产品分类": "A", "核心卖点": ["k1"],
+        "价格与促销": {"原价": None, "活动价": None, "优惠规则": None},
+        "目标用户": ["u1"], "使用场景": ["s1"], "销售话术": "t",
+        "常见问题": [], "售后保障": None,
+    }
+    missing = get_missing_fields(data)
+    assert "常见问题" in missing
+    assert "售后保障" in missing
+    assert "价格与促销" in missing
+
+
+def test_get_missing_fields_returns_empty_when_complete():
+    data = {
+        "物料名": "X", "品牌介绍": "Y", "产品介绍": "Z",
+        "产品分类": "A", "核心卖点": ["k1"],
+        "价格与促销": {"原价": 100, "活动价": 80, "优惠规则": "折扣"},
+        "目标用户": ["u1"], "使用场景": ["s1"], "销售话术": "t",
+        "常见问题": [{"问": "Q", "答": "A"}], "售后保障": "7天退换",
+    }
+    assert get_missing_fields(data) == []
+
+
+def test_midscene_fallback_returns_list():
+    missing = ["常见问题", "售后保障"]
+    with patch("extractor.subprocess.run") as mock_run:
+        mock_run.return_value = MagicMock(returncode=0)
+        with patch("extractor.capture_screenshots") as mock_cap:
+            mock_cap.return_value = ["fake_b64"]
+            result = midscene_fallback("https://example.com", missing)
+    assert isinstance(result, list)
