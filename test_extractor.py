@@ -113,3 +113,39 @@ def test_midscene_fallback_returns_list():
             mock_cap.return_value = ["fake_b64"]
             result = midscene_fallback("https://example.com", missing)
     assert isinstance(result, list)
+
+
+# ---------------------------------------------------------------------------
+# Task 6: generate_dialogs + print_result tests
+# ---------------------------------------------------------------------------
+
+from extractor import generate_dialogs, print_result
+
+
+def test_generate_dialogs_returns_string():
+    knowledge = {"物料名": "测试", "核心卖点": ["快", "好"]}
+    with patch("extractor.anthropic.Anthropic") as MockClient:
+        MockClient.return_value.messages.create.return_value = _mock_claude_response(
+            "Q: 好用吗？\nA: 非常好用，快速又高效。"
+        )
+        result = generate_dialogs(knowledge)
+    assert isinstance(result, str)
+    assert "Q:" in result
+
+
+def test_print_result_contains_all_sections(capsys):
+    url = "https://example.com/product"
+    knowledge = {
+        "物料名": "测试商品", "品牌介绍": "品牌A", "产品介绍": "好",
+        "产品分类": "电子", "核心卖点": ["快"],
+        "价格与促销": {"原价": 100, "活动价": 80, "优惠规则": None},
+        "目标用户": ["年轻人"], "使用场景": ["居家"], "销售话术": "超值",
+        "常见问题": [], "售后保障": None,
+    }
+    dialogs = "Q: 好用吗？\nA: 是的。"
+    print_result(url, knowledge, dialogs)
+    captured = capsys.readouterr()
+    assert "测试商品" in captured.out
+    assert "期望学到知识" in captured.out
+    assert "备注" in captured.out
+    assert "Q: 好用吗" in captured.out
