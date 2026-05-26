@@ -18,8 +18,8 @@ FALLBACK_TRIGGERS = {"售后保障", "价格与促销"}
 # Screenshot capture
 # ---------------------------------------------------------------------------
 
-def capture_screenshots(url: str) -> list[str]:
-    """Return list of base64-encoded PNG screenshots at 3 scroll positions."""
+def capture_screenshots(url: str, max_shots: int = 6) -> list[str]:
+    """Return base64-encoded PNG screenshots covering the full page height."""
     screenshots = []
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
@@ -28,11 +28,18 @@ def capture_screenshots(url: str) -> list[str]:
         time.sleep(2)
 
         total_height = page.evaluate("document.body.scrollHeight")
-        positions = [0, total_height // 2, max(0, total_height - 900)]
+        viewport_h = 900
+        # Evenly distribute scroll positions across full page, always include bottom
+        n = min(max_shots, max(3, total_height // viewport_h + 1))
+        step = max(1, (total_height - viewport_h) // (n - 1)) if n > 1 else 0
+        positions = [min(i * step, max(0, total_height - viewport_h)) for i in range(n)]
+        # Deduplicate while preserving order
+        seen = set()
+        positions = [p for p in positions if not (p in seen or seen.add(p))]
 
         for pos in positions:
             page.evaluate(f"window.scrollTo(0, {pos})")
-            time.sleep(0.5)
+            time.sleep(0.4)
             png_bytes = page.screenshot(full_page=False)
             screenshots.append(base64.b64encode(png_bytes).decode("utf-8"))
 
@@ -112,18 +119,22 @@ def get_missing_fields(data: dict) -> list[str]:
 # ---------------------------------------------------------------------------
 
 def _build_midscene_yaml(url: str, missing: list[str]) -> str:
-    """Build a Midscene YAML script in the new format (web + tasks)."""
+    """Build a Midscene YAML script that does a full-page scroll scan."""
     flow_steps = []
-    if "价格与促销" in missing:
-        flow_steps.append("      - ai: dismiss any popup or login dialog that may be covering the price")
-        flow_steps.append("      - ai: scroll to the price section")
+    # Always dismiss popups first
+    flow_steps.append("      - ai: dismiss any popup, cookie banner, or login dialog if present")
+    # Expand interactive sections for specific missing fields
     if "常见问题" in missing:
-        flow_steps.append("      - ai: find and expand the FAQ or 常见问题 section by clicking on it")
-        flow_steps.append("      - ai: scroll down to reveal all FAQ items")
-    if "售后保障" in missing:
-        flow_steps.append("      - aiScroll: {direction: down, distance: 3000}")
-        flow_steps.append("      - ai: scroll to the warranty and return policy section")
-    flow_steps.append("      - sleep: 2000")
+        flow_steps.append("      - ai: find and expand the FAQ section by clicking on it")
+    # Full-page scroll to expose all lazy-loaded content (price often at bottom)
+    flow_steps.append("      - aiScroll: {direction: down, distance: 2000}")
+    flow_steps.append("      - sleep: 800")
+    flow_steps.append("      - aiScroll: {direction: down, distance: 2000}")
+    flow_steps.append("      - sleep: 800")
+    flow_steps.append("      - aiScroll: {direction: down, distance: 2000}")
+    flow_steps.append("      - sleep: 800")
+    flow_steps.append("      - aiScroll: {direction: down, distance: 2000}")
+    flow_steps.append("      - sleep: 1000")
 
     steps_str = "\n".join(flow_steps)
     return f"""web:
@@ -132,7 +143,7 @@ def _build_midscene_yaml(url: str, missing: list[str]) -> str:
   viewportHeight: 900
 
 tasks:
-  - name: expand-missing-sections
+  - name: full-page-scan
     flow:
 {steps_str}
 """
