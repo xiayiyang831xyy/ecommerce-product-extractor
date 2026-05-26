@@ -94,6 +94,15 @@ def extract_knowledge(screenshots_b64: list[str]) -> dict:
     # Strip any spurious keys not in the defined schema
     allowed = {"物料名", "品牌介绍", "产品介绍", "产品分类", "核心卖点",
                "价格与促销", "目标用户", "使用场景", "售后保障"}
+    # Normalize 价格与促销 sub-keys to include 价格区间
+    if "价格与促销" in data and isinstance(data["价格与促销"], dict):
+        price = data["价格与促销"]
+        data["价格与促销"] = {
+            "原价": price.get("原价"),
+            "活动价": price.get("活动价"),
+            "价格区间": price.get("价格区间"),
+            "优惠规则": price.get("优惠规则"),
+        }
     return {k: v for k, v in data.items() if k in allowed}
 
 
